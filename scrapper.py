@@ -3,6 +3,8 @@ from time import sleep
 import requests
 import json
 
+OMDB_API_KEY = ''
+
 def find_extra_info(url):
     page = requests.get(url).content
     soup = BeautifulSoup(page, 'html.parser')
@@ -23,27 +25,43 @@ def find_original_name(soup):
     originalName = originalName[:originalName.find('\r')]
     return originalName
 
+def omdb(originalName):
+    p_name = '+'.join(originalName.lower().split())
+    url = 'http://www.omdbapi.com/'
+    p_url = url + '?t=%s&apikey=%s' % (p_name, OMDB_API_KEY)
+    answer = requests.get(p_url).content
+    try: return json.loads(answer)
+    except: 
+        print answer
+        return None
+
 def main(parameter=''):
 
     url = 'https://www.ingresso.com/rio-de-janeiro/home/filmes/' + parameter
     page = requests.get(url).content
     soup = BeautifulSoup(page, 'html.parser')
     filmes = soup.find_all(attrs={'class':'card ing-small'})
-
     d_filmes = {}
 
     for filme in filmes:
+
         d_filme = {}
         atributos = filme.find_all("meta")
+
         for atributo in atributos:
             descricao = atributo['itemprop']
             d_filme[descricao] = atributo['content']
+
         compra = filme.find(attrs={"class":"d-block"})
+        
         d_filme['ticket'] = 'https://www.ingresso.com' + compra['href']
         d_filme['trailer'], d_filme['originalName'] = find_extra_info(d_filme['ticket'])
-        print d_filme['originalName']
+        d_filme['omdb'] = omdb(d_filme['originalName'])
+         
         sleep(1)
+        
         nome = filme.find(attrs={"class":"card-title"}).text
+        print nome
         d_filmes[nome] = d_filme
 
     return d_filmes
