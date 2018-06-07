@@ -25,12 +25,20 @@ def find_original_name(soup):
     originalName = originalName[:originalName.find('\r')]
     return originalName
 
-def omdb(originalName):
+def omdb(originalName,director):
     p_name = '+'.join(originalName.lower().split())
     url = 'http://www.omdbapi.com/'
     p_url = url + '?t=%s&apikey=%s' % (p_name, OMDB_API_KEY)
     answer = requests.get(p_url).content
-    try: return json.loads(answer)
+    try: 
+        movie_data = json.loads(answer)
+
+        movie_director = movie_data["Director"].upper().replace(" ","")
+        director = director.upper().replace(" ","")
+        
+        if(director == movie_director):
+            return movie_data
+        return None
     except: 
         print answer
         return None
@@ -56,7 +64,7 @@ def main(parameter=''):
         
         d_filme['ticket'] = 'https://www.ingresso.com' + compra['href']
         d_filme['trailer'], d_filme['originalName'] = find_extra_info(d_filme['ticket'])
-        d_filme['omdb'] = omdb(d_filme['originalName'])
+        d_filme['omdb'] = omdb(d_filme['originalName'],d_filme['director'])
          
         sleep(1)
         
