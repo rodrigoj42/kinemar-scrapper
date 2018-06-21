@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7142359020DAADDC00385E7C /* Movie.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7142358F20DAADDC00385E7C /* Movie.swift */; };
 		7184A64C20D0D315008F1F6B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7184A64B20D0D315008F1F6B /* Assets.xcassets */; };
 		71AB634820D0A33600C48060 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71AB634720D0A33600C48060 /* AppDelegate.swift */; };
 		71AB634A20D0A33600C48060 /* art.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = 71AB634920D0A33600C48060 /* art.scnassets */; };
@@ -18,6 +19,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		7142358F20DAADDC00385E7C /* Movie.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Movie.swift; sourceTree = "<group>"; };
 		7184A64B20D0D315008F1F6B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		71AB634420D0A33600C48060 /* kinemAR.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = kinemAR.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		71AB634720D0A33600C48060 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -41,6 +43,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		7142358E20DAADDC00385E7C /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				7142358F20DAADDC00385E7C /* Movie.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
 		71AB633B20D0A33500C48060 = {
 			isa = PBXGroup;
 			children = (
@@ -63,6 +73,7 @@
 				71AB634720D0A33600C48060 /* AppDelegate.swift */,
 				71AB634B20D0A33600C48060 /* ViewController.swift */,
 				71AB635D20D0A71E00C48060 /* ViewController+ARSessionDelegate.swift */,
+				7142358E20DAADDC00385E7C /* Model */,
 				71AB635F20D0A76F00C48060 /* Additional View Controllers */,
 				71AB635B20D0A3F200C48060 /* Main.storyboard */,
 				71AB634920D0A33600C48060 /* art.scnassets */,
@@ -157,6 +168,7 @@
 				71AB635E20D0A71E00C48060 /* ViewController+ARSessionDelegate.swift in Sources */,
 				71AB634C20D0A33600C48060 /* ViewController.swift in Sources */,
 				71AB634820D0A33600C48060 /* AppDelegate.swift in Sources */,
+				7142359020DAADDC00385E7C /* Movie.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
