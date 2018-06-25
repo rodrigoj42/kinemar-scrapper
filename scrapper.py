@@ -2,8 +2,14 @@ from bs4 import BeautifulSoup
 from time import sleep
 import requests
 import json
+import io
 
-OMDB_API_KEY = ''
+OMDB_API_KEY = open('omdb.cfg').read().strip('\n')
+
+def merge_two_dicts(x, y):
+    z = x.copy()   # start with x's keys and values
+    z.update(y)    # modifies z with y's keys and values & returns None
+    return z
 
 def find_extra_info(url):
     page = requests.get(url).content
@@ -37,6 +43,9 @@ def omdb(originalName, director):
 
         movie_director = movie_data["Director"].upper().replace(" ","")
         director = director.upper().replace(" ","")
+
+        for key in movie_data.keys():
+            movie_data[key] = movie_data[key].strip()
         
         if (director == movie_director):
             return movie_data
@@ -67,10 +76,14 @@ def main(parameter=''):
         d_filme['ticket'] = 'https://www.ingresso.com' + compra['href']
         d_filme['trailer'], d_filme['originalName'] = find_extra_info(d_filme['ticket'])
         d_filme['omdb'] = omdb(d_filme['originalName'], d_filme['director'])
-         
+
+        for key in d_filme.keys():
+            try: d_filme[key] = d_filme[key].strip(' ')
+            except: pass
+
         sleep(1)
         
-        nome = filme.find(attrs={"class":"card-title"}).text
+        nome = filme.find(attrs={"class":"card-title"}).text.strip('\n')
         print nome
         d_filmes[nome] = d_filme
 
@@ -78,6 +91,6 @@ def main(parameter=''):
 
 if __name__ == "__main__":
     filmes_em_cartaz = main(parameter='em-cartaz')
-    json.dump(filmes_em_cartaz, open('emcartaz.json', 'w'))
     filmes_em_breve  = main(parameter='em-breve')
-    json.dump(filmes_em_breve, open('embreve.json', 'w'))
+    filmes = merge_two_dicts(filmes_em_breve, filmes_em_cartaz)
+    json.dump(filmes, open('filmes.json', 'w'), indent=4) # , ensure_ascii=False)
