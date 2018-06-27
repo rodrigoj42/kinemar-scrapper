@@ -93,28 +93,6 @@ class ARViewController: UIViewController, ARSCNViewDelegate {
         // Pause the view's session
         sceneView.session.pause()
     }
-
-    
-    lazy var ticketNode: SCNNode = {
-        guard let scene = SCNScene(named: "art.scnassets/ticket.scn"),
-            let node = scene.rootNode.childNode(withName: "ticket", recursively: false) else { return SCNNode() }
-        
-        let scaleFactor  = 0.01
-        node.scale = SCNVector3(scaleFactor, scaleFactor, scaleFactor)
-        node.position.y = planeGap
-        return node
-    }()
-    
-    lazy var playButtonNode: SCNNode = {
-        guard let scene = SCNScene(named: "art.scnassets/playButton.scn"),
-            let node = scene.rootNode.childNode(withName: "playButton", recursively: false) else { return SCNNode() }
-        
-        let scaleFactor  = 0.02
-        node.scale = SCNVector3(scaleFactor, scaleFactor, scaleFactor)
-        node.position.y = planeGap
-        node.opacity = 0.8
-        return node
-    }()
     
     // MARK: - ARSCNViewDelegate
     /*
@@ -125,7 +103,9 @@ class ARViewController: UIViewController, ARSCNViewDelegate {
     }
     */
  
+    
     /// MARK: ARImageAnchor-Visualizing
+    
     func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
         guard let imageAnchor = anchor as? ARImageAnchor else { return }
         let referenceImage = imageAnchor.referenceImage
@@ -172,6 +152,30 @@ class ARViewController: UIViewController, ARSCNViewDelegate {
             self.statusViewController.showMessage("Detected image “\(imageName)”")
         }
     }
+    
+    
+    // MARK: Scene nodes
+    
+    lazy var ticketNode: SCNNode = {
+        guard let scene = SCNScene(named: "art.scnassets/ticket.scn"),
+            let node = scene.rootNode.childNode(withName: "ticket", recursively: false) else { return SCNNode() }
+        
+        let scaleFactor  = 0.01
+        node.scale = SCNVector3(scaleFactor, scaleFactor, scaleFactor)
+        node.position.y = planeGap
+        return node
+    }()
+    
+    lazy var playButtonNode: SCNNode = {
+        guard let scene = SCNScene(named: "art.scnassets/playButton.scn"),
+            let node = scene.rootNode.childNode(withName: "playButton", recursively: false) else { return SCNNode() }
+        
+        let scaleFactor  = 0.02
+        node.scale = SCNVector3(scaleFactor, scaleFactor, scaleFactor)
+        node.position.y = planeGap
+        node.opacity = 0.8
+        return node
+    }()
     
     
     // MARK: Handle scene nodes actions
