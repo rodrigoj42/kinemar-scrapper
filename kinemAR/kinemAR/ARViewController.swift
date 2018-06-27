@@ -2,7 +2,7 @@ import UIKit
 import SceneKit
 import ARKit
 
-class ViewController: UIViewController, ARSCNViewDelegate {
+class ARViewController: UIViewController, ARSCNViewDelegate {
 
     @IBOutlet var sceneView: ARSCNView!
     @IBOutlet weak var blurView: UIVisualEffectView!
@@ -11,7 +11,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     
     /// The view controller that displays the status and "restart experience" UI.
     lazy var statusViewController: StatusViewController = {
-        return childViewControllers.lazy.compactMap({ $0 as? StatusViewController }).first!
+        return children.lazy.compactMap({ $0 as? StatusViewController }).first!
     }()
     
     /// A serial queue for thread safety when modifying the SceneKit node graph.
@@ -39,6 +39,10 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         // Hook up status view controller callback(s).
         statusViewController.restartExperienceHandler = { [unowned self] in
             self.restartExperience()
+        }
+        
+        statusViewController.showHistoryHandler = { [unowned self] in
+            self.performSegue(withIdentifier: "showHistory", sender: self)
         }
     }
     
@@ -169,20 +173,26 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         }
     }
     
+    
+    // MARK: Handle scene nodes actions
+    
     @objc
     func handleTap(_ gesture: UITapGestureRecognizer) {
-        if gesture.state == .ended {
-            let location: CGPoint = gesture.location(in: sceneView)
-            let hits = self.sceneView.hitTest(location, options: nil)
-            if let tappedNode = hits.first?.node {
-                NSLog("Node tapped: " + tappedNode.name!)
-                switch tappedNode.name {
-                case "playButton":
-                    NSLog("node tapped: play video")
-                default:
-                    NSLog("node tapped: NOTHING TO SEE")
-                }
-            }
+        let location = gesture.location(in: sceneView)
+        let hits = self.sceneView.hitTest(location, options: nil)
+        
+        guard gesture.state == .ended,
+            let tappedNode = hits.first?.node else {
+                return
         }
-    }
-}
+        
+        NSLog("Node tapped: " + tappedNode.name!)
+        switch tappedNode.name {
+        case "playButton":
+            NSLog("## play video")
+        case "ticketButton":
+            NSLog("## buy ticket")
+        default:
+            NSLog("Action not registered for node")
+        }
+    }}
