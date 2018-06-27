@@ -117,8 +117,16 @@ class ARViewController: UIViewController, ARSCNViewDelegate {
             let ticket = self.ticketNode
             ticket.position.z = -(Float(imageAnchor.referenceImage.physicalSize.height / 2) + self.planeGap)
             
+            let tomato = self.tomatoNode
+            tomato.position.x = -(Float(imageAnchor.referenceImage.physicalSize.width / 2) + self.planeGap)
+            
+            let popcorn = self.popcornNode
+            popcorn.position.x = (Float(imageAnchor.referenceImage.physicalSize.width / 2) + self.planeGap)
+            
             node.addChildNode(playButton)
             node.addChildNode(ticket)
+            node.addChildNode(tomato)
+            node.addChildNode(popcorn)
             
              /*
              // Create a plane to visualize the initial position of the detected image.
@@ -176,6 +184,28 @@ class ARViewController: UIViewController, ARSCNViewDelegate {
         return node
     }()
     
+    lazy var tomatoNode: SCNNode = {
+        guard let scene = SCNScene(named: "art.scnassets/tomato/tomato.scn"),
+            let node = scene.rootNode.childNode(withName: "tomato", recursively: false) else { return SCNNode() }
+        
+        let scaleFactor  = 0.015
+        node.scale = SCNVector3(scaleFactor, scaleFactor, scaleFactor)
+        node.position.y = planeGap
+        return node
+    }()
+    
+    lazy var popcornNode: SCNNode = {
+        guard let scene = SCNScene(named: "art.scnassets/popcorn/popcorn.scn"),
+            let node = scene.rootNode.childNode(withName: "popcorn", recursively: false) else {
+                NSLog("#### OH SHIT!")
+                return SCNNode() }
+        
+        let scaleFactor  = 0.02
+        node.scale = SCNVector3(scaleFactor, scaleFactor, scaleFactor)
+        node.position.y = planeGap
+        return node
+    }()
+    
     
     // MARK: Handle scene nodes actions
     
@@ -193,6 +223,8 @@ class ARViewController: UIViewController, ARSCNViewDelegate {
         switch tappedNode.name {
         case "playButton":
             NSLog("## play video")
+            let url = URL(string: "youtube://AKEoT7NQNiU")!
+            UIApplication.shared.open(url, options: [:], completionHandler: nil)
         case "ticketButton":
             NSLog("## buy ticket")
         default:
