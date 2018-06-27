@@ -113,7 +113,6 @@ class ARViewController: UIViewController, ARSCNViewDelegate {
         updateQueue.async {
             
             let playButton = self.playButtonNode
-            //playButton.position.z = -(Float(imageAnchor.referenceImage.physicalSize.height / 2) + self.planeGap)
             
             let ticket = self.ticketNode
             ticket.position.z = -(Float(imageAnchor.referenceImage.physicalSize.height / 2) + self.planeGap)
@@ -157,7 +156,7 @@ class ARViewController: UIViewController, ARSCNViewDelegate {
     // MARK: Scene nodes
     
     lazy var ticketNode: SCNNode = {
-        guard let scene = SCNScene(named: "art.scnassets/ticket.scn"),
+        guard let scene = SCNScene(named: "art.scnassets/ticket/ticket.scn"),
             let node = scene.rootNode.childNode(withName: "ticket", recursively: false) else { return SCNNode() }
         
         let scaleFactor  = 0.01
@@ -167,7 +166,7 @@ class ARViewController: UIViewController, ARSCNViewDelegate {
     }()
     
     lazy var playButtonNode: SCNNode = {
-        guard let scene = SCNScene(named: "art.scnassets/playButton.scn"),
+        guard let scene = SCNScene(named: "art.scnassets/playButton/playButton.scn"),
             let node = scene.rootNode.childNode(withName: "playButton", recursively: false) else { return SCNNode() }
         
         let scaleFactor  = 0.02
