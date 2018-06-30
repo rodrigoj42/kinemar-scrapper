@@ -59,7 +59,7 @@ def omdb(originalName, director):
 def build_dict(old_dict):
     n = {}
     n['title'] = old_dict['nome']
-    n['movieOutline'] =  old_dict['description']
+    n['movieOutline'] =  old_dict['description'].strip('\n')
     n['director'] = old_dict['director']
     n['ticket'] = old_dict['ticket']
     n['countryOfOrigin'] = old_dict['countryOfOrigin']
