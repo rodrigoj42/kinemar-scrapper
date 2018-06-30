@@ -2,7 +2,7 @@ import UIKit
 import SceneKit
 import ARKit
 
-class ViewController: UIViewController, ARSCNViewDelegate {
+class ARViewController: UIViewController, ARSCNViewDelegate {
 
     @IBOutlet var sceneView: ARSCNView!
     @IBOutlet weak var blurView: UIVisualEffectView!
@@ -11,7 +11,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     
     /// The view controller that displays the status and "restart experience" UI.
     lazy var statusViewController: StatusViewController = {
-        return childViewControllers.lazy.compactMap({ $0 as? StatusViewController }).first!
+        return children.lazy.compactMap({ $0 as? StatusViewController }).first!
     }()
     
     /// A serial queue for thread safety when modifying the SceneKit node graph.
@@ -39,6 +39,10 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         // Hook up status view controller callback(s).
         statusViewController.restartExperienceHandler = { [unowned self] in
             self.restartExperience()
+        }
+        
+        statusViewController.showHistoryHandler = { [unowned self] in
+            self.performSegue(withIdentifier: "showHistory", sender: self)
         }
     }
     
@@ -89,28 +93,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         // Pause the view's session
         sceneView.session.pause()
     }
-
-    
-    lazy var ticketNode: SCNNode = {
-        guard let scene = SCNScene(named: "art.scnassets/ticket.scn"),
-            let node = scene.rootNode.childNode(withName: "ticket", recursively: false) else { return SCNNode() }
-        
-        let scaleFactor  = 0.01
-        node.scale = SCNVector3(scaleFactor, scaleFactor, scaleFactor)
-        node.position.y = planeGap
-        return node
-    }()
-    
-    lazy var playButtonNode: SCNNode = {
-        guard let scene = SCNScene(named: "art.scnassets/playButton.scn"),
-            let node = scene.rootNode.childNode(withName: "playButton", recursively: false) else { return SCNNode() }
-        
-        let scaleFactor  = 0.02
-        node.scale = SCNVector3(scaleFactor, scaleFactor, scaleFactor)
-        node.position.y = planeGap
-        node.opacity = 0.8
-        return node
-    }()
     
     // MARK: - ARSCNViewDelegate
     /*
@@ -121,7 +103,9 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     }
     */
  
+    
     /// MARK: ARImageAnchor-Visualizing
+    
     func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
         guard let imageAnchor = anchor as? ARImageAnchor else { return }
         let referenceImage = imageAnchor.referenceImage
@@ -129,13 +113,20 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         updateQueue.async {
             
             let playButton = self.playButtonNode
-            //playButton.position.z = -(Float(imageAnchor.referenceImage.physicalSize.height / 2) + self.planeGap)
             
             let ticket = self.ticketNode
             ticket.position.z = -(Float(imageAnchor.referenceImage.physicalSize.height / 2) + self.planeGap)
             
+            let tomato = self.tomatoNode
+            tomato.position.x = -(Float(imageAnchor.referenceImage.physicalSize.width / 2) + self.planeGap)
+            
+            let popcorn = self.popcornNode
+            popcorn.position.x = (Float(imageAnchor.referenceImage.physicalSize.width / 2) + self.planeGap)
+            
             node.addChildNode(playButton)
             node.addChildNode(ticket)
+            node.addChildNode(tomato)
+            node.addChildNode(popcorn)
             
              /*
              // Create a plane to visualize the initial position of the detected image.
@@ -169,20 +160,74 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         }
     }
     
+    
+    // MARK: Scene nodes
+    
+    lazy var ticketNode: SCNNode = {
+        guard let scene = SCNScene(named: "art.scnassets/ticket/ticket.scn"),
+            let node = scene.rootNode.childNode(withName: "ticket", recursively: false) else { return SCNNode() }
+        
+        let scaleFactor  = 0.01
+        node.scale = SCNVector3(scaleFactor, scaleFactor, scaleFactor)
+        node.position.y = planeGap
+        return node
+    }()
+    
+    lazy var playButtonNode: SCNNode = {
+        guard let scene = SCNScene(named: "art.scnassets/playButton/playButton.scn"),
+            let node = scene.rootNode.childNode(withName: "playButton", recursively: false) else { return SCNNode() }
+        
+        let scaleFactor  = 0.02
+        node.scale = SCNVector3(scaleFactor, scaleFactor, scaleFactor)
+        node.position.y = planeGap
+        node.opacity = 0.8
+        return node
+    }()
+    
+    lazy var tomatoNode: SCNNode = {
+        guard let scene = SCNScene(named: "art.scnassets/tomato/tomato.scn"),
+            let node = scene.rootNode.childNode(withName: "tomato", recursively: false) else { return SCNNode() }
+        
+        let scaleFactor  = 0.015
+        node.scale = SCNVector3(scaleFactor, scaleFactor, scaleFactor)
+        node.position.y = planeGap
+        return node
+    }()
+    
+    lazy var popcornNode: SCNNode = {
+        guard let scene = SCNScene(named: "art.scnassets/popcorn/popcorn.scn"),
+            let node = scene.rootNode.childNode(withName: "popcorn", recursively: false) else {
+                NSLog("#### OH SHIT!")
+                return SCNNode() }
+        
+        let scaleFactor  = 0.02
+        node.scale = SCNVector3(scaleFactor, scaleFactor, scaleFactor)
+        node.position.y = planeGap
+        return node
+    }()
+    
+    
+    // MARK: Handle scene nodes actions
+    
     @objc
     func handleTap(_ gesture: UITapGestureRecognizer) {
-        if gesture.state == .ended {
-            let location: CGPoint = gesture.location(in: sceneView)
-            let hits = self.sceneView.hitTest(location, options: nil)
-            if let tappedNode = hits.first?.node {
-                NSLog("Node tapped: " + tappedNode.name!)
-                switch tappedNode.name {
-                case "playButton":
-                    NSLog("node tapped: play video")
-                default:
-                    NSLog("node tapped: NOTHING TO SEE")
-                }
-            }
+        let location = gesture.location(in: sceneView)
+        let hits = self.sceneView.hitTest(location, options: nil)
+        
+        guard gesture.state == .ended,
+            let tappedNode = hits.first?.node else {
+                return
         }
-    }
-}
+        
+        NSLog("Node tapped: " + tappedNode.name!)
+        switch tappedNode.name {
+        case "playButton":
+            NSLog("## play video")
+            let url = URL(string: "youtube://AKEoT7NQNiU")!
+            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+        case "ticketButton":
+            NSLog("## buy ticket")
+        default:
+            NSLog("Action not registered for node")
+        }
+    }}

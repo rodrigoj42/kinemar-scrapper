@@ -21,15 +21,14 @@ class StatusViewController: UIViewController {
     // MARK: - IBOutlets
 
     @IBOutlet weak private var messagePanel: UIVisualEffectView!
-    
     @IBOutlet weak private var messageLabel: UILabel!
     
-    @IBOutlet weak private var restartExperienceButton: UIButton!
 
     // MARK: - Properties
     
-    /// Trigerred when the "Restart Experience" button is tapped.
+    /// Trigerred when the StatusVC buttons are tapped
     var restartExperienceHandler: () -> Void = {}
+    var showHistoryHandler: () -> Void = {}
     
     /// Seconds before the timer message should fade out. Adjust if the app needs longer transient messages.
     private let displayDuration: TimeInterval = 6
@@ -38,6 +37,7 @@ class StatusViewController: UIViewController {
     private var messageHideTimer: Timer?
     
     private var timers: [MessageType: Timer] = [:]
+    
     
     // MARK: - Message Handling
 	
@@ -79,6 +79,7 @@ class StatusViewController: UIViewController {
         }
     }
     
+    
     // MARK: - ARKit
     
 	func showTrackingQualityInfo(for trackingState: ARCamera.TrackingState, autoHide: Bool) {
@@ -102,10 +103,15 @@ class StatusViewController: UIViewController {
         timers[.trackingStateEscalation] = timer
     }
     
+    
     // MARK: - IBActions
     
     @IBAction private func restartExperience(_ sender: UIButton) {
         restartExperienceHandler()
+    }
+    
+    @IBAction func showHistory(_ sender: Any) {
+        showHistoryHandler()
     }
 	
 	// MARK: - Panel Visibility
