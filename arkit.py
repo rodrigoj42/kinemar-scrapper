@@ -1,6 +1,7 @@
 import json 
 import requests 
 import os
+from time import sleep
 
 '''Baixa trailers no json gerado e adiciona arquivos no formato pedido pela Apple'''
 
@@ -18,24 +19,12 @@ def build_ar_reference(filme):
     build_movie_content(filme, full_path)
 
 def build_movie_content(filme, full_path):
-    d = {"images":[
-            {
-                "idiom" : "universal",
-                "filename" : filme
-            }
-        ], 
-         "info":{
-             "version" : 1,
-             "author" : "xcode"
-            }, 
-         'properties': {
-             "width" : width_size,
-             "unit" : "centimeters"
-            }
+    d = {"images" :[ {"idiom" : "universal", "filename" : filme} ], 
+         "info" : { "version" : 1, "author" : "xcode" }, 
+         "properties": { "width" : width_size, "unit" : "centimeters" }
         }
 
     json.dump(d, open(full_path+'Contents.json', 'w'), indent=2)
-    pass
 
 def build_contents():
     pass
@@ -54,6 +43,7 @@ def download_posters_in(jsonFileAddr):
         cartaz = requests.get(filme['poster'])
         with open('posters/' + filme['title'] + '.jpg', 'wb') as f:
             f.write(cartaz.content)
+        sleep(1)
 
 if __name__ == "__main__":
     download_posters_in('filmes.json')
