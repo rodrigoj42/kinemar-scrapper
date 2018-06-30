@@ -71,8 +71,13 @@ def build_dict(old_dict):
         n['production'] = old_dict['omdb']['Production']
         n['ratings'] = old_dict['omdb']['Ratings']
         for i in range(len(n['ratings'])):
+            d = {}
             if n['ratings'][i]['Source'] == "Internet Movie Database":
-                n['ratings'][i]['Source'] = 'IMDb'
+                d['source'] = 'IMDb'
+            else:
+                d['source'] = n['ratings'][i]['Source']
+            d['value'] = n['ratings'][i]['Value']
+            n['ratings'][i] = d
         n['writer'] = old_dict['omdb']['Writer']
         n['actors'] = old_dict['omdb']['Actors']
         n['website'] = old_dict['omdb']['Website']
