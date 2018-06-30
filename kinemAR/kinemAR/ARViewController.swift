@@ -115,13 +115,13 @@ class ARViewController: UIViewController, ARSCNViewDelegate {
             let playButton = self.playButtonNode
             
             let ticket = self.ticketNode
-            ticket.position.z = -(Float(imageAnchor.referenceImage.physicalSize.height / 2) + self.planeGap)
+            ticket.switchPosition(to: .top, imageAnchor: imageAnchor)
             
             let tomato = self.tomatoNode
-            tomato.position.x = -(Float(imageAnchor.referenceImage.physicalSize.width / 2) + self.planeGap)
+            tomato.switchPosition(to: .left, imageAnchor: imageAnchor)
             
             let popcorn = self.popcornNode
-            popcorn.position.x = (Float(imageAnchor.referenceImage.physicalSize.width / 2) + self.planeGap)
+            popcorn.switchPosition(to: .right, imageAnchor: imageAnchor)
             
             node.addChildNode(playButton)
             node.addChildNode(ticket)

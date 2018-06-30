@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		71254C3820E719EB009F4518 /* SCNNode+switchPosition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71254C3720E719EB009F4518 /* SCNNode+switchPosition.swift */; };
 		7134E3D920E32EA700DA271C /* MovieCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7134E3D720E32EA700DA271C /* MovieCell.swift */; };
 		7134E3DA20E32EA700DA271C /* HistoryTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7134E3D820E32EA700DA271C /* HistoryTableViewController.swift */; };
 		7142359020DAADDC00385E7C /* Movie.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7142358F20DAADDC00385E7C /* Movie.swift */; };
@@ -21,6 +22,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		71254C3720E719EB009F4518 /* SCNNode+switchPosition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SCNNode+switchPosition.swift"; sourceTree = "<group>"; };
 		7134E3D720E32EA700DA271C /* MovieCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MovieCell.swift; sourceTree = "<group>"; };
 		7134E3D820E32EA700DA271C /* HistoryTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HistoryTableViewController.swift; sourceTree = "<group>"; };
 		7142358F20DAADDC00385E7C /* Movie.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Movie.swift; sourceTree = "<group>"; };
@@ -47,6 +49,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		71254C3620E700DB009F4518 /* Extension */ = {
+			isa = PBXGroup;
+			children = (
+				71254C3720E719EB009F4518 /* SCNNode+switchPosition.swift */,
+			);
+			path = Extension;
+			sourceTree = "<group>";
+		};
 		7142358E20DAADDC00385E7C /* Model */ = {
 			isa = PBXGroup;
 			children = (
@@ -77,6 +87,7 @@
 				71AB634720D0A33600C48060 /* AppDelegate.swift */,
 				71AB634B20D0A33600C48060 /* ARViewController.swift */,
 				71AB635D20D0A71E00C48060 /* ARViewController+ARSessionDelegate.swift */,
+				71254C3620E700DB009F4518 /* Extension */,
 				7142358E20DAADDC00385E7C /* Model */,
 				71AB635F20D0A76F00C48060 /* Additional View Controllers */,
 				71AB635B20D0A3F200C48060 /* Main.storyboard */,
@@ -174,6 +185,7 @@
 				71AB636120D0A76F00C48060 /* StatusViewController.swift in Sources */,
 				71AB635E20D0A71E00C48060 /* ARViewController+ARSessionDelegate.swift in Sources */,
 				7134E3D920E32EA700DA271C /* MovieCell.swift in Sources */,
+				71254C3820E719EB009F4518 /* SCNNode+switchPosition.swift in Sources */,
 				71AB634C20D0A33600C48060 /* ARViewController.swift in Sources */,
 				7134E3DA20E32EA700DA271C /* HistoryTableViewController.swift in Sources */,
 				71AB634820D0A33600C48060 /* AppDelegate.swift in Sources */,
