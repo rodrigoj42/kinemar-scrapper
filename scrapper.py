@@ -5,12 +5,6 @@ import json
 import io
 
 OMDB_API_KEY = open('omdb.cfg').read().strip('\n')
-print OMDB_API_KEY
-
-def merge_two_dicts(x, y):
-    z = x.copy()   # start with x's keys and values
-    z.update(y)    # modifies z with y's keys and values & returns None
-    return z
 
 def find_extra_info(url):
     page = requests.get(url).content
@@ -38,10 +32,8 @@ def find_original_name(soup):
 
 def omdb(originalName, director):
     p_name = '+'.join(originalName.lower().split()).strip('the+')
-    print p_name
     url = 'http://www.omdbapi.com/'
     p_url = url + '?t=%s&apikey=%s' % (p_name, OMDB_API_KEY)
-    print p_url
     answer = requests.get(p_url).content
     movie_not_found = {'Response':'False', 'Error':'Movie not found!'}
 
@@ -74,6 +66,7 @@ def build_dict(old_dict):
     n['contentRating'] = old_dict['contentRating']
     n['originalTitle'] = old_dict['originalName']
     n['trailer'] = old_dict['trailer']
+    n['poster'] = old_dict['image']
     try:
         n['production'] = old_dict['omdb']['Production']
         n['ratings'] = old_dict['omdb']['Ratings']

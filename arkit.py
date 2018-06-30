@@ -1,29 +1,60 @@
 import json 
 import requests 
+import os
 
-# ISSO TÁ INCOMPLETO/NÃO FUNCIONANDO
+'''Baixa trailers no json gerado e adiciona arquivos no formato pedido pela Apple'''
 
-contents = json.load(open('Contents.json'))
+path = './kinemAR/kinemAR/Assets.xcassets/AR Resources.arresourcegroup/'
+contents = json.load(open(path + 'Contents.json'))
 
-# posterSize = 68.58x101.6 (cm) 
+width_size = 69
 
-def build_ar_reference():
-    os.system('mkdir %s' % folder_name)
-    os.system('cd %s' % folder_name)
-    with picture as f:
-        f.write(data)
-    os.system('cd ..')
+def build_ar_reference(filme):
+    name = filme.replace('jpg', 'arreferenceimage')
+    if not os.path.exists(path + name):
+        os.mkdir(path + name)
+    full_path = path + name + '/' 
+    os.rename('./posters/' + filme, full_path+filme)
+    build_movie_content(filme, full_path)
+
+def build_movie_content(filme, full_path):
+    d = {"images":[
+            {
+                "idiom" : "universal",
+                "filename" : filme
+            }
+        ], 
+         "info":{
+             "version" : 1,
+             "author" : "xcode"
+            }, 
+         'properties': {
+             "width" : width_size,
+             "unit" : "centimeters"
+            }
+        }
+
+    json.dump(d, open(full_path+'Contents.json', 'w'), indent=2)
     pass
 
-def build_resource_group(lista):
-    for i in lista:
-        build_ar_reference(i)
+def build_contents():
+    pass
+
+def build_resource_group():
+    for filme in os.listdir('./posters'):
+        build_ar_reference(filme)
     build_contents()
 
-def download_posters(jsonFileAddr):
-    filmes = json.load(jsonFileAddr)
-    l_filmes = filmes.keys()
+def download_posters_in(jsonFileAddr):
+    if not os.path.exists('posters'):
+        os.mkdir('posters')
+    with open(jsonFileAddr) as jsonFile:
+        l_filmes = json.load(jsonFile)
     for filme in l_filmes:
-        cartaz = request.get(filmes[filme]['image'])
-        with open(filme + '.jpg', 'wb') as f:
+        cartaz = requests.get(filme['poster'])
+        with open('posters/' + filme['title'] + '.jpg', 'wb') as f:
             f.write(cartaz.content)
+
+if __name__ == "__main__":
+    download_posters_in('filmes.json')
+    build_resource_group()
