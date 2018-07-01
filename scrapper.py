@@ -30,6 +30,16 @@ def find_original_name(soup):
     originalName = originalName[:originalName.find('\r')]
     return originalName
 
+def get_rt_data(originalName):
+    rtname = '_'.join(originalName.lower().split())
+    url = 'https://www.rottentomatoes.com/m/'
+    page = requests.get(url + rtname).content
+    soup = BeautifulSoup(page, 'html.parser')
+    critics  = soup.find(attrs={'class':'meter-value superPageFontColor'}).text
+    audience = soup.find(attrs={'class':'meter media'}).find(attrs={'class':'superPageFontColor'}).text
+    return critics, audience
+    
+
 def omdb(originalName, director):
     p_name = '+'.join(originalName.lower().split()).strip('the+')
     url = 'http://www.omdbapi.com/'
@@ -69,6 +79,15 @@ def build_dict(old_dict):
     n['poster'] = old_dict['image']
     try:
         n['production'] = old_dict['omdb']['Production']
+        n['writer'] = old_dict['omdb']['Writer']
+        n['actors'] = old_dict['omdb']['Actors']
+        n['website'] = old_dict['omdb']['Website']
+        n['genre'] = old_dict['omdb']['Genre']
+        n['language'] = old_dict['omdb']['Language']
+        n['runtime'] = old_dict['omdb']['Runtime']
+        n['imdbID'] = old_dict['omdb']['imdbID']
+        n['year'] = old_dict['omdb']['Year']
+
         n['ratings'] = old_dict['omdb']['Ratings']
         for i in range(len(n['ratings'])):
             d = {}
@@ -78,16 +97,17 @@ def build_dict(old_dict):
                 d['source'] = n['ratings'][i]['Source']
             d['value'] = n['ratings'][i]['Value']
             n['ratings'][i] = d
-        n['writer'] = old_dict['omdb']['Writer']
-        n['actors'] = old_dict['omdb']['Actors']
-        n['website'] = old_dict['omdb']['Website']
-        n['genre'] = old_dict['omdb']['Genre']
-        n['language'] = old_dict['omdb']['Language']
-        n['runtime'] = old_dict['omdb']['Runtime']
-        n['imdbID'] = old_dict['omdb']['imdbID']
-        n['year'] = old_dict['omdb']['Year']
+        try:
+            critics, audience = get_rt_data(n['originalTitle'])
+            d_audience = {'source':'Rotten Tomatoes Audience','value':audience}
+           # d_critics = {'source':'rt_critics','value':critics}
+            n['ratings'].append(d_audience)
+        except:
+            pass
+
     except:
         pass
+
     return n
 
 
@@ -126,7 +146,7 @@ def main(parameter=''):
             pass
         else: 
             d_filmes.append(build_dict(d_filme))
-        #return d_filmes # para uso em testes! 
+        # return d_filmes # para uso em testes! 
 
     return d_filmes
 
