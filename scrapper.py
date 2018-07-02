@@ -1,159 +1,131 @@
 from bs4 import BeautifulSoup
-from time import sleep
-import requests
 import json
-import io
+import requests
 
 OMDB_API_KEY = open('omdb.cfg').read().strip('\n')
 
-def find_extra_info(url):
-    page = requests.get(url).content
-    soup = BeautifulSoup(page, 'html.parser')
-    try: trailer_url = find_trailer(soup)
-    except: trailer_url = None
-    return trailer_url, find_original_name(soup), find_content_rating(soup)
+def main(parameter=''):
+    url = 'https://api-content.ingresso.com/v0/templates/'
+    page = requests.get(url+parameter).content
+    filmes = json.loads(page)
+    for i in range(len(filmes)):
+        filme = filmes[i]
+        filmes[i]['omdb'] = omdb_search(filme)
+        filmes[i]['RT'] = get_rt_data(filme['originalTitle'])
+    return build_final_json(filmes)
 
-def find_content_rating(soup):
-    contentRating = soup.find(attrs={"itemprop":"contentRating"})
-    return contentRating.text
-
-def find_trailer(soup):
-    trailer = soup.find(attrs={'class':'video-iframe js-video-iframe'})
-    t_url = trailer['data-src']
-    trailerUrl = 'http:' + t_url[:t_url.find('?')]
-    return trailerUrl.split('/')[-1]
-
-def find_original_name(soup):
-    coluna = soup.find(attrs={'class':'column-md-2'})
-    bloco  = coluna.find(attrs={'class':'d-block'})
-    originalName = bloco.next.next
-    originalName = originalName[:originalName.find('\r')]
-    return originalName
-
-def get_rt_data(originalName):
-    rtname = '_'.join(originalName.lower().split())
-    url = 'https://www.rottentomatoes.com/m/'
-    page = requests.get(url + rtname).content
-    soup = BeautifulSoup(page, 'html.parser')
-    critics  = soup.find(attrs={'class':'meter-value superPageFontColor'}).text
-    audience = soup.find(attrs={'class':'meter media'}).find(attrs={'class':'superPageFontColor'}).text
-    return critics, audience
-    
-
-def omdb(originalName, director):
-    p_name = '+'.join(originalName.lower().split()).strip('the+')
+def omdb_search(filme):
+    title = filme['originalTitle'].strip('The').strip('\n').strip(' ')
+    p_title = '+'.join(title.lower().split())
     url = 'http://www.omdbapi.com/'
-    p_url = url + '?t=%s&apikey=%s' % (p_name, OMDB_API_KEY)
-    answer = requests.get(p_url).content
-    movie_not_found = {'Response':'False', 'Error':'Movie not found!'}
-
-    try: 
-        movie_data = json.loads(answer)
-
-        movie_director = movie_data["Director"].upper().replace(" ","")
-        director = director.upper().replace(" ","")
-
-        for key in movie_data.keys():
-            try:
-                movie_data[key] = movie_data[key].strip()
-            except:
-                pass
-        
-        if (director == movie_director):
-            return movie_data
-        return movie_not_found
-
-    except: 
-        return movie_not_found
-
-def build_dict(old_dict):
-    n = {}
-    n['title'] = old_dict['nome']
-    n['movieOutline'] =  old_dict['description'].strip('\n')
-    n['director'] = old_dict['director']
-    n['ticket'] = old_dict['ticket']
-    n['countryOfOrigin'] = old_dict['countryOfOrigin']
-    n['contentRating'] = old_dict['contentRating']
-    n['originalTitle'] = old_dict['originalName']
-    n['trailer'] = old_dict['trailer']
-    n['poster'] = old_dict['image']
+    p_url = url + '?t=%s&apikey=%s' % (p_title, OMDB_API_KEY)
     try:
-        n['production'] = old_dict['omdb']['Production']
-        n['writer'] = old_dict['omdb']['Writer']
-        n['actors'] = old_dict['omdb']['Actors']
-        n['website'] = old_dict['omdb']['Website']
-        n['genre'] = old_dict['omdb']['Genre']
-        n['language'] = old_dict['omdb']['Language']
-        n['runtime'] = old_dict['omdb']['Runtime']
-        n['imdbID'] = old_dict['omdb']['imdbID']
-        n['year'] = old_dict['omdb']['Year']
-
-        n['ratings'] = old_dict['omdb']['Ratings']
-        for i in range(len(n['ratings'])):
-            d = {}
-            if n['ratings'][i]['Source'] == "Internet Movie Database":
-                d['source'] = 'IMDb'
-            elif n['ratings'][i]['Source'] == "Rotten Tomatoes":
-                d['source'] = 'Rotten Tomatoes Critics'
-            else:
-                d['source'] = n['ratings'][i]['Source']
-            d['value'] = n['ratings'][i]['Value']
-            n['ratings'][i] = d
-        try:
-            critics, audience = get_rt_data(n['originalTitle'])
-            d_audience = {'source':'Rotten Tomatoes Audience','value':audience}
-           # d_critics = {'source':'rt_critics','value':critics}
-            n['ratings'].append(d_audience)
-        except:
-            pass
-
+        answer = requests.get(p_url).content
+        omdb_data = json.loads(answer)
+        if match(omdb_data['Director'], filme['director']):
+            return omdb_data
+        else:
+            return None
     except:
         pass
+    return None
 
-    return n
+def match(a, b):
+    a = a.lower().replace(' ','')
+    b = b.lower().replace(' ','')
+    return a == b
+    
+def get_rt_data(originalName):
+    try:
+        rtname = '_'.join(originalName.lower().split())
+        url = 'https://www.rottentomatoes.com/m/'
+        page = requests.get(url + rtname).content
+        soup = BeautifulSoup(page, 'html.parser')
+        critics  = soup.find(attrs={'class':'meter-value superPageFontColor'}).text
+        audience = soup.find(attrs={'class':'meter media'}).find(attrs={'class':'superPageFontColor'}).text
+        return critics, audience
+    except:
+        return None
 
-
-def main(parameter=''):
-
-    url = 'https://www.ingresso.com/rio-de-janeiro/home/filmes/' + parameter
-    page = requests.get(url).content
-    soup = BeautifulSoup(page, 'html.parser')
-    filmes = soup.find_all(attrs={'class':'card ing-small'})
-    d_filmes = []
-
+def build_final_json(filmes):
+    formatados = []
     for filme in filmes:
+        formatado = {}
+        formatado['poster'] = get_poster(filme)
+        if not formatado['poster']:
+            continue
 
-        d_filme = {}
-
-        atributos = filme.find_all("meta")
-        for atributo in atributos:
-            descricao = atributo['itemprop']
-            d_filme[descricao] = atributo['content']
-
-        compra = filme.find(attrs={"class":"d-block"})
-        
-        d_filme['ticket'] = 'https://www.ingresso.com' + compra['href']
-        d_filme['trailer'], d_filme['originalName'], d_filme['contentRating'] = find_extra_info(d_filme['ticket'])
-        d_filme['omdb'] = omdb(d_filme['originalName'], d_filme['director'])
-
-        for key in d_filme.keys():
-            try: d_filme[key] = d_filme[key].strip(' ')
-            except: pass
-
-        sleep(1)
-        
-        d_filme['nome'] = filme.find(attrs={"class":"card-title"}).text.strip(' ')
-
-        if requests.get(d_filme['image']).content == 'File not found."':
+        formatado['movieID'] = filme['id']
+        formatado['title'] = filme['title']
+        formatado['originalTitle'] = filme['originalTitle']
+        formatado['movieOutline'] = filme['synopsis']
+        formatado['director'] = filme['director']
+        formatado['ticket'] = filme['siteURL']
+        formatado['contentRating'] = filme['contentRating']
+        formatado['isPlaying'] = filme['isPlaying']
+        formatado['runtime'] = filme['duration']
+        try:
+            formatado['premiereYear'] = filme['premiereDate']['year']
+            formatado['premiereDate'] = filme['premiereDate']['dayAndMonth']
+        except:
             pass
-        else: 
-            d_filmes.append(build_dict(d_filme))
-        return d_filmes # para uso em testes! 
+        try:
+            formatado['production'] = filme['omdb']['Production']
+            formatado['countryOfOrigin'] = filme['omdb']['Production']
+            formatado['writer'] = filme['omdb']['Writer']
+            formatado['actors'] = filme['omdb']['Actors']
+            formatado['website'] = filme['omdb']['Website']
+            formatado['language'] = filme['omdb']['Language']
+            formatado['imdbID'] = filme['omdb']['imdbID']
+        except:
+            pass
+        formatado['genre'] = get_genre(filme)
+        formatado['trailer'] = get_trailer_id(filme)
+        formatado['rating'] = build_ratings(filme)
+        for k in formatado:
+            try:
+                formatado[k] = formatado[k].strip('\n').strip(' ')
+            except: 
+                pass
+        formatados.append(formatado)
+    return formatados
 
-    return d_filmes
+def get_poster(filme):
+    for poster in filme['images']:
+        if poster['type'] == "PosterPortrait":
+            return poster['url']
+    return None
 
-if __name__ == "__main__":
-    filmes_em_cartaz = main(parameter='em-cartaz')
-    filmes_em_breve  = main(parameter='em-breve')
-    filmes = filmes_em_cartaz + filmes_em_breve
-    json.dump(filmes, open('filmes.json', 'w'), indent=4) # , ensure_ascii=False)
+def build_ratings(filme):
+    try:
+        critics, audience = filme['RT']
+        for rating in filme['omdb']['Ratings']:
+            if rating['Source'] == 'Internet Movie Database':
+                imdb = rating['Value']
+            if rating['Source'] == 'Metacritic':
+                metacritic = rating['Value']
+        ratings = [ {'source':'Rotten Tomatoes Audience','value':audience}, \
+        {'source':'Rotten Tomatoes Critics','value':critics}, \
+        {'source':'Metacritic','value':metacritic}, \
+        {'source':'IMDb','value':imdb} ]
+        return ratings
+    except:
+        return []
+
+def get_genre(filme):
+    genres = filme['genres']
+    return ', '.join(genres)
+
+def get_trailer_id(filme):
+    try:
+        url = filme['trailers'][0]['embeddedUrl']
+        trailerID = url.split()[-1]
+        return trailerID
+    except:
+        return None
+
+if __name__ == '__main__':
+    em_cartaz = main('nowplaying')
+    em_breve = main('soon')
+    filmes = em_cartaz + em_breve
+    json.dump(filmes, open('filmes.json', 'w'), indent=4)
