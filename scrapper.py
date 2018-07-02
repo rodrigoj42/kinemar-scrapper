@@ -21,7 +21,7 @@ def find_trailer(soup):
     trailer = soup.find(attrs={'class':'video-iframe js-video-iframe'})
     t_url = trailer['data-src']
     trailerUrl = 'http:' + t_url[:t_url.find('?')]
-    return trailerUrl
+    return trailerUrl.split('/')[-1]
 
 def find_original_name(soup):
     coluna = soup.find(attrs={'class':'column-md-2'})
@@ -93,6 +93,8 @@ def build_dict(old_dict):
             d = {}
             if n['ratings'][i]['Source'] == "Internet Movie Database":
                 d['source'] = 'IMDb'
+            elif n['ratings'][i]['Source'] == "Rotten Tomatoes":
+                d['source'] = 'Rotten Tomatoes Critics'
             else:
                 d['source'] = n['ratings'][i]['Source']
             d['value'] = n['ratings'][i]['Value']
