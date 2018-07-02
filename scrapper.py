@@ -148,7 +148,7 @@ def main(parameter=''):
             pass
         else: 
             d_filmes.append(build_dict(d_filme))
-        # return d_filmes # para uso em testes! 
+        return d_filmes # para uso em testes! 
 
     return d_filmes
 

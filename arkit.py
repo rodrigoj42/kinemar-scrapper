@@ -27,7 +27,12 @@ def build_movie_content(filme, full_path):
     json.dump(d, open(full_path+'Contents.json', 'w'), indent=2)
 
 def build_contents():
-    pass
+    container = { "info": { "version": 1, "author": "xcode"},
+            "resources" : []}
+    for p in os.listdir(path): 
+        if p.split('.')[-1] == 'arreferenceimage':
+            container["resources"].append({"filename":p})
+    json.dump(container, open(path+'Contents.json', 'w'), indent=2)
 
 def build_resource_group():
     for filme in os.listdir('./posters'):
